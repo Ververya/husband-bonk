@@ -1,0 +1,19 @@
+{
+  "/": {
+    "load": true,
+    "reloadStorage": true,
+    "workerScope": "http://127.0.0.1:8003/",
+    "manifestAndIcons": true,
+    "onlySameSiteRequests": true,
+    "cachedAssets": 16
+  },
+  "/husband-bonk/": {
+    "load": true,
+    "reloadStorage": true,
+    "workerScope": "http://127.0.0.1:8003/husband-bonk/",
+    "manifestAndIcons": true,
+    "onlySameSiteRequests": true,
+    "cachedAssets": 16
+  },
+  "offlineSubdirectoryReloadAndPlay": true
+}

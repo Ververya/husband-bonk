@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f3e9">
+  <title>老公欠揍計數器 · Husband Bonk Counter</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="assets/icons/husband.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/game.css">
+  <script type="module" src="js/game.js"></script>
+</head>
+<body>
+  <main class="game" id="game">
+    <header class="heading">
+      <span class="edition">一點點怨氣，很多點療癒。</span>
+      <button class="settings-button" id="settings-button" aria-label="開啟設定">⚙</button>
+      <h1>老公欠揍<br>計數器<span class="title-dot">.</span></h1>
+      <p class="english">HUSBAND BONK COUNTER</p>
+      <p class="intro">今天沒事。<br>有事就打一下。</p>
+    </header>
+    <section class="meter" aria-label="累積計數">
+      <div class="meter-top"><span>本次怒氣 <small id="session-mode">30 下，一次小小紓壓</small></span><span><strong id="count">0</strong><span class="count-limit" id="count-limit"> / 30</span></span></div>
+      <div class="progress-track" role="progressbar" aria-label="本次怒氣" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" id="progress"><div id="progress-fill"></div></div>
+      <div class="meter-caption"><span>小小不爽</span><span>紓壓一下 ↗</span></div>
+      <div class="alert-meter"><div class="meter-top"><span>🚨 老公累積欠揍值</span><span id="alert-count">0 / 100</span></div><div class="progress-track" role="progressbar" aria-label="老公累積欠揍值" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="alert-progress"><div id="alert-progress-fill"></div></div><button id="notify" hidden>通知老公</button></div>
+    </section>
+    <section class="playground" aria-label="遊戲區域">
+      <div class="speech" id="speech">今天的我，應該很乖吧？</div>
+      <span class="combo" id="combo" aria-hidden="true"></span>
+      <button class="hit-area" id="husband" aria-label="BONK 老公一下">
+        <span class="character" id="character"></span>
+        <span class="ground-shadow"></span>
+      </button>
+      <div class="effects" id="effects" aria-hidden="true"></div>
+      <p class="tap-hint"><span>↓</span> 點他。<small>TAP TO BONK</small></p>
+    </section>
+    <footer><span class="heart">♡</span> 放心，他只是像素。<p>給累積了一點點怨氣的人。</p></footer>
+    <p class="status" id="status" role="status"></p>
+  </main>
+  <dialog id="alert-dialog" class="alert-dialog" aria-labelledby="alert-title">
+    <div class="alert-symbol">🚨</div><p class="eyebrow">HUSBAND ALERT</p>
+    <h2 id="alert-title">老公，事情有點嚴重。</h2>
+    <p>你的老婆最近已經默默累積了 100 下。</p>
+    <p class="alert-message" id="alert-message"></p>
+    <button class="primary" id="line-share">LINE 警告老公</button>
+    <button class="secondary" id="keep-alert">先不要，我自己留著</button>
+    <details class="share-options"><summary>其他分享方式</summary><button class="secondary" id="web-share">使用系統分享</button><button class="secondary" id="copy-message">複製訊息</button><textarea id="copy-text" aria-label="可手動複製的警告訊息" readonly hidden></textarea></details>
+    <button class="secondary" id="share-complete" hidden>我已完成分享</button>
+    <button class="secondary" id="forgive-alert">這次算了，重新累積</button>
+    <p class="dialog-note" id="share-status" role="status">請自行選擇收件人與送出。開啟分享不會清除計數。</p>
+  </dialog>
+  <dialog id="rage-dialog" class="alert-dialog" aria-labelledby="rage-title"><div class="alert-symbol">💥</div><p class="eyebrow">RAGE RELEASED</p><h2 id="rage-title">本次已成功揍老公 30 下。</h2><p id="rage-question">有舒服一點嗎？</p><button class="primary" id="release">😌 舒服一點了</button><button class="secondary" id="continue-session">😑 還沒。</button></dialog>
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <div class="dialog-heading"><h2 id="settings-title">設定</h2><button id="close-settings" aria-label="關閉設定">✕</button></div>
+    <label class="setting-row">減少動態效果<input type="checkbox" id="reduce-motion"></label>
+    <button class="reset-button" id="reset">重設本次計數</button>
+    <details class="statistics"><summary>Statistics · 統計</summary><dl><dt>Lifetime Bonks</dt><dd id="stat-lifetime">0</dd><dt>Husband Alerts · 已完成分享</dt><dd id="stat-alerts">0</dd><dt>Highest Session Bonks</dt><dd id="stat-highest">0</dd></dl></details>
+    <div class="about"><h3>老公欠揍計數器</h3><p>給累積了一點點怨氣的人。<br>放心，遊戲裡的老公沒有受到任何傷害。♡</p><small>資料只存於這個瀏覽器</small></div>
+  </dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title"><h2 id="reset-title">確定重設本次計數？</h2><p>本次回到 0，累積警戒與終生計數保留。</p><button class="primary" id="confirm-reset">確定重設</button><button class="secondary" id="cancel-reset">繼續累積</button></dialog>
+  <p id="achievement" class="achievement" role="status" hidden></p>
+</body>
+</html>

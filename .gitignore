@@ -1,0 +1,9 @@
+.venv/
+.browser-test*/
+.browser-preview/
+tests/*stderr.txt
+tests/preview-mobile.png
+
+dist/
+__pycache__/
+.tools/
