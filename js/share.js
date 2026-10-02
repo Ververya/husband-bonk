@@ -1,5 +1,13 @@
 export const ALERT_THRESHOLD=100;
-export function husbandAlertShareMessage(currentAlertMessage){return `${currentAlertMessage}
+export function husbandAlertShareMessage(currentAlertMessage){return `🚨 HUSBAND ALERT
+
+老公，事情有點嚴重。
+
+你的老婆最近已經默默累積了 ${ALERT_THRESHOLD} 下。
+
+────────────
+
+${currentAlertMessage}
 
 ────────────
 
