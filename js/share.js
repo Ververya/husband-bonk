@@ -5,9 +5,7 @@ export function husbandAlertShareMessage(){return `🚨 HUSBAND ALERT 🚨
 
 你的老婆最近已經默默累積了 ${ALERT_THRESHOLD} 下。
 
-🚨 累積提醒已送達。
-
-${ALERT_THRESHOLD} 下不是今日限定。
+⚠️ ${ALERT_THRESHOLD} 下不是今日限定。
 是。
 累。
 積。
@@ -19,7 +17,11 @@ ${ALERT_THRESHOLD} 下不是今日限定。
 
 ────────────
 
-🛟 老公解法：
+🛟 老公求生指南
+
+系統正在分析最佳解法⋯⋯
+
+分析完成。
 
 我也無法救你。
 
