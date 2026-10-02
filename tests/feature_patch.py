@@ -10,7 +10,7 @@ class Handler(SimpleHTTPRequestHandler):
  def log_message(self,*args):pass
 server=ThreadingHTTPServer(('127.0.0.1',8004),Handler)
 threading.Thread(target=server.serve_forever,daemon=True).start()
-browser=subprocess.Popen([r'C:\Program Files\Google\Chrome\Application\chrome.exe','--headless','--disable-gpu','--no-first-run','--remote-debugging-port=9226',f'--user-data-dir={ROOT / ".browser-test-feature"}','about:blank'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
+browser=subprocess.Popen([r'C:\Program Files\Google\Chrome\Application\chrome.exe','--headless','--disable-gpu','--no-first-run','--remote-debugging-port=9226',f'--user-data-dir={ROOT / (".browser-test-feature-" + str(int(time.time())))}','about:blank'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
 results={}
 try:
  pages=until(lambda:json.load(urllib.request.urlopen('http://127.0.0.1:9226/json/list')))
@@ -45,8 +45,7 @@ try:
   cdp.evaluate(f"localStorage.setItem('husbandBonk_v2',JSON.stringify({{schemaVersion:2,sessionHits:{session},alertHits:{alert},lifetimeHits:{max(session,alert)},sessionAcknowledged:{str(ack).lower()}}}))")
   cdp.call('Page.reload');time.sleep(.5)
  seed(29,98)
- cdp.evaluate("document.querySelector('#husband').click()")
- assert cdp.evaluate("document.querySelector('#rage-dialog').open && document.querySelector('#background-cat').dataset.reaction==='surprise'")
+ assert cdp.evaluate("document.querySelector('#husband').click();document.querySelector('#rage-dialog').open && document.querySelector('#background-cat').dataset.reaction==='surprise'")
  time.sleep(.6)
  assert cdp.evaluate("document.querySelector('#background-cat').dataset.reaction==='grin'")
  cdp.evaluate("document.querySelector('#continue-session').click();document.querySelector('#husband').click()")
