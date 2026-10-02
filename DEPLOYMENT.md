@@ -1,6 +1,6 @@
 ﻿# Production deployment — GitHub Pages
 
-目前不是正式公開部署。執行中的 127.0.0.1:8000 是本機服務；tests/lan-server.log 記錄的 http://10.96.170.14:8002/ 是私人 LAN IP，只能由能連到該區網的裝置存取，電腦需保持開機。沒有 Git repository / remote，也沒有既有公開網址可供驗證。
+已於 2026-10-02 完成正式部署。遊戲：https://ververya.github.io/husband-bonk/ 。Repository：https://github.com/Ververya/husband-bonk 。GitHub Pages 使用 workflow 部署，https_enforced=true，不依賴本機電腦。原先 localhost／私人 LAN 網址只用於本機預覽。正式 HTTPS 首頁與所有資產已通過 HTTP 200 檢查；Chrome 手機尺寸、存檔重新整理、service worker scope、本站請求與離線重新整理遊玩皆已通過。iPhone Safari 實機仍待使用者測試。
 
 專案是原生 HTML/CSS/ES modules；GitHub Pages 可直接託管，玩家不需要 Python、Node、帳號或後端。沒有新增 framework，也沒有修改玩法或遊戲畫面。
 
@@ -19,7 +19,7 @@ git push -u origin main
 
 3. Repository → Settings → Pages → Build and deployment → Source 選 GitHub Actions。
 4. Actions → Deploy game to GitHub Pages → Run workflow，選 main。首次 push 若早於 Pages 設定而失敗，設定後重新執行即可。
-5. Workflow 成功後，在 Settings → Pages 的 Visit site 或 Actions 的 github-pages deployment 取得網址：`https://USERNAME.github.io/husband-bonk/`。這只是格式範例，尚非已上線網址。請分享含專案名稱及結尾斜線的 HTTPS 網址。
+5. Workflow 成功後，在 Settings → Pages 的 Visit site 或 Actions 的 github-pages deployment 取得網址：`https://USERNAME.github.io/husband-bonk/`。這是網址格式範例；本專案實際網址為 https://ververya.github.io/husband-bonk/ 。請分享含專案名稱及結尾斜線的 HTTPS 網址。
 6. Settings → Pages → Enforce HTTPS 確認已啟用。此後由 GitHub 託管，不需本機開機。後續 push main 自動更新。
 
 官方說明：https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
@@ -55,3 +55,4 @@ Apple 說明：https://support.apple.com/guide/iphone/open-as-web-app-iphea86e52
 ## 本機驗證
 
 `python tests/deployment_browser.py` 使用已安裝的 Windows Chrome，以獨立 profile 驗證 production 根目錄與 /husband-bonk/ 子目錄、manifest／PNG、service worker scope、localStorage 重新整理、本站資產請求及停止伺服器後離線遊玩。結果在 tests/deployment-results.json。
+
