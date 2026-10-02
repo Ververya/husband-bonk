@@ -4,7 +4,7 @@ import {createEffects} from './effects.js';
 import {milestones,initialDialogue,alertWarning,continueDialogue} from '../data/dialogues.js';
 import {alerts} from '../data/alerts.js';
 import {achievements} from '../data/achievements.js';
-import {openLineShare,webShare,copyMessage,husbandAlertShareMessage} from './share.js';
+import {openLineShare,webShare,copyMessage,husbandAlertShareMessage,ALERT_THRESHOLD} from './share.js';
 
 const $=id=>document.getElementById(id);
 let state=loadState();
@@ -53,11 +53,14 @@ function showRage(afterAlert=false){
   $('rage-dialog').showModal();effects.celebrate(reduced());clearCombo();
 }
 function alertMessage(){return alerts[state.alertMessageIndex]||alerts[0];}
-function showAlert(){
-  if(document.querySelector('dialog[open]'))return;
+function selectCurrentAlert(){
   if(!Number.isInteger(state.alertMessageIndex)||!alerts[state.alertMessageIndex]){
     state.alertMessageIndex=Math.floor(Math.random()*alerts.length);persist();
   }
+}
+function showAlert(){
+  if(document.querySelector('dialog[open]'))return;
+  selectCurrentAlert();
   $('alert-message').textContent=alertMessage();
   $('share-complete').hidden=!state.sharePending;
   $('share-status').textContent=state.sharePending?'分享後請按「我已完成分享」。尚未送出也可以先保留。':'請自行選擇收件人與送出。開啟分享不會清除計數。';
@@ -65,7 +68,8 @@ function showAlert(){
   $('alert-dialog').showModal();effects.celebrate(reduced());clearCombo();
 }
 function pendingEvent(){
-  if(state.alertHits>=100&&!state.alertAcknowledged)showAlert();
+  if(state.alertHits>=ALERT_THRESHOLD)selectCurrentAlert();
+  if(state.alertHits>=ALERT_THRESHOLD&&!state.alertAcknowledged)showAlert();
   else if(state.sessionHits>=30&&!state.sessionAcknowledged)showRage();
 }
 function displayAchievement(){
@@ -119,15 +123,15 @@ function clearAlert(shared){
 function markSharePending(){if(state.alertHits<100)return;state.sharePending=true;persist();$('share-complete').hidden=false;$('share-status').textContent='請在分享介面自行選擇收件人與送出；完成後再按「我已完成分享」。';}
 async function copyAlert(){
   const cycle=shareCycle;
-  const copied=await copyMessage(husbandAlertShareMessage());
+  const copied=await copyMessage(husbandAlertShareMessage(alertMessage()));
   if(cycle!==shareCycle||state.alertHits<100)return;
-  $('copy-text').value=husbandAlertShareMessage();$('copy-text').hidden=copied;
+  $('copy-text').value=husbandAlertShareMessage(alertMessage());$('copy-text').hidden=copied;
   if(!copied){$('copy-text').focus();$('copy-text').select();}
   markSharePending();$('share-status').textContent=copied?'訊息已複製；尚未送出。貼上並分享完成後再確認。':'請手動複製上方訊息；完成分享後再確認。';
 }
 async function useWebShare(){
   const cycle=shareCycle;
-  const result=await webShare(husbandAlertShareMessage());
+  const result=await webShare(husbandAlertShareMessage(alertMessage()));
   if(cycle!==shareCycle||state.alertHits<100)return;
   if(result==='offline'){$('share-status').textContent='先幫妳留著。等有網路再傳給他。';return;}
   if(result==='cancelled'){$('share-status').textContent='已取消分享，累積警戒值保留。';return;}
@@ -142,7 +146,7 @@ $('alert-dialog').addEventListener('cancel',event=>{event.preventDefault();keepA
 $('keep-alert').addEventListener('click',keepAlert);
 $('notify').addEventListener('click',showAlert);
 $('line-share').addEventListener('click',async()=>{
-  const result=openLineShare(husbandAlertShareMessage());
+  const result=openLineShare(husbandAlertShareMessage(alertMessage()));
   if(result==='offline')$('share-status').textContent='先幫妳留著。等有網路再傳給他。';
   else if(result==='opened')markSharePending();else await useWebShare();
 });
