@@ -1,6 +1,6 @@
 import {loadState,saveState,createState} from './storage.js';
 import {mountCharacter,renderCharacter} from './character.js';
-import {createEffects} from './effects.js';
+import {createEffects,createBackgroundCat} from './effects.js';
 import {milestones,initialDialogue,alertWarning,continueDialogue} from '../data/dialogues.js';
 import {alerts} from '../data/alerts.js';
 import {achievements} from '../data/achievements.js';
@@ -14,6 +14,7 @@ let shareCycle=0;
 const achievementQueue=[];
 const media=matchMedia('(prefers-reduced-motion: reduce)');
 const effects=createEffects($('effects'));
+const backgroundCat=createBackgroundCat($('background-cat'),reduced);
 mountCharacter($('character'));
 function reduced(){return state.settings.reduceMotion||media.matches;}
 function persist(){storageFailed=!saveState(state);if(storageFailed){clearTimeout(statusTimer);$('status').classList.remove('fading');$('status').textContent='瀏覽器無法儲存；本次紀錄僅保留到頁面關閉。';}}
@@ -33,6 +34,7 @@ function render(){
   $('husband').setAttribute('aria-label',`BONK 老公一下，本次 ${state.sessionHits} 下，累積警戒 ${state.alertHits} 下`);
   renderCharacter($('character'),state.sessionHits);
   document.body.classList.toggle('reduced',reduced());
+  backgroundCat.update(state.sessionHits);
   $('reduce-motion').checked=state.settings.reduceMotion;
   $('stat-lifetime').textContent=state.lifetimeHits;
   $('stat-alerts').textContent=state.alertCount;
@@ -98,6 +100,7 @@ function hit(event){
   const y=event.detail&&Number.isFinite(event.clientY)?event.clientY-rect.top:150;
   effects.hit(Math.max(40,Math.min(rect.width-40,x)),Math.max(50,Math.min(rect.height-50,y)),reduced());
   effects.animate($('character'),'bonk',reduced());effects.animate($('game'),'shake',reduced());effects.animate($('count'),'pop',reduced());
+  backgroundCat.onBonk(state.sessionHits);
   pendingEvent();
 }
 function resetSession(){
@@ -152,6 +155,8 @@ $('share-complete').addEventListener('click',()=>{if(state.sharePending&&state.a
 $('forgive-alert').addEventListener('click',()=>{if(confirm('這次算了，將累積警戒值歸零？本次怒氣與終生紀錄會保留。'))clearAlert(false);});
 $('settings-button').addEventListener('click',()=>{render();$('settings-dialog').showModal();});
 $('close-settings').addEventListener('click',()=>{$('settings-dialog').close();});
+$('author-button').addEventListener('click',()=>{if(!document.querySelector('dialog[open]'))$('author-dialog').showModal();});
+$('author-close').addEventListener('click',()=>$('author-dialog').close());
 $('reduce-motion').addEventListener('change',()=>{state.settings.reduceMotion=$('reduce-motion').checked;effects.clear();persist();render();});
 media.addEventListener('change',()=>{effects.clear();render();});
 $('reset').addEventListener('click',()=>{$('reset-dialog').showModal();});

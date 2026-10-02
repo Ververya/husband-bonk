@@ -1,0 +1,106 @@
+{
+  "320": {
+    "overflow": false,
+    "gameWidth": 320,
+    "characterRatio": 0.9166666666666666,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "375": {
+    "overflow": false,
+    "gameWidth": 375,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "390": {
+    "overflow": false,
+    "gameWidth": 390,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "430": {
+    "overflow": false,
+    "gameWidth": 430,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "768": {
+    "overflow": false,
+    "gameWidth": 680,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "1024": {
+    "overflow": false,
+    "gameWidth": 680,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "1280": {
+    "overflow": false,
+    "gameWidth": 1000,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "1440": {
+    "overflow": false,
+    "gameWidth": 1000,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "1920": {
+    "overflow": false,
+    "gameWidth": 1000,
+    "characterRatio": 0.9230769230769231,
+    "footerBelow": true,
+    "catBehind": true,
+    "catNoPointer": true,
+    "effectsClipped": true,
+    "progressFits": true,
+    "authorModalCentered": true
+  },
+  "30And100TriggersAndStorage": true,
+  "rapidBonkBounded": true,
+  "simulatedHiddenStopsCat": true,
+  "reducedMotionStatic": true,
+  "occasionalIdleWalk": true
+}
