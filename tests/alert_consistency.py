@@ -29,7 +29,8 @@ try:
     assert alert_id==3
     expected=cdp.evaluate("import('./js/share.js').then(m=>m.husbandAlertShareMessage(document.querySelector('#alert-message').textContent))")
     suffix="\n\n"+"\u2500"*12+"\n\n\U0001f6df \u8001\u516c\u6c42\u751f\u5efa\u8b70\n\n\u795d \u4f60 \u597d \u904b \U0001f642"
-    assert expected==modal+suffix
+    header="\U0001f6a8 HUSBAND ALERT\n\n\u8001\u516c\uff0c\u4e8b\u60c5\u6709\u9ede\u56b4\u91cd\u3002\n\n\u4f60\u7684\u8001\u5a46\u6700\u8fd1\u5df2\u7d93\u9ed8\u9ed8\u7d2f\u7a4d\u4e86 100 \u4e0b\u3002\n\n"+"\u2500"*12+"\n\n"
+    assert expected==header+modal+suffix
     assert '\u6c42\u751f\u5efa\u8b70' not in modal
     cdp.evaluate("window.captured={};window.open=(url)=>{captured.line=new URL(url).searchParams.get('text');return {opener:null}};Object.defineProperty(navigator,'share',{configurable:true,writable:true,value:async({text})=>{captured.web=text}});Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{captured.copy=text}}})")
     for button in ['line-share','web-share','copy-message']:
