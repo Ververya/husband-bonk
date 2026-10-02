@@ -35,7 +35,7 @@ try{
   let openedUrl='';win.open=url=>{openedUrl=url;return {opener:null};};
   const lifetime=read().lifetimeHits;
   click('line-share');await wait(20);
-  check('LINE URL encoded and user initiated',openedUrl==='https://line.me/R/share?text='+encodeURIComponent(husbandAlertShareMessage()));
+  check('LINE URL encoded and user initiated',openedUrl==='https://line.me/R/share?text='+encodeURIComponent(husbandAlertShareMessage(message)));
   check('Opening share never resets',read().alertHits===101&&!doc.getElementById('share-complete').hidden);
   click('share-complete');
   check('E confirmed share clears alert only',read().alertHits===0&&read().lifetimeHits===lifetime&&read().sessionHits===12&&read().alertCount===1);
@@ -88,7 +88,7 @@ try{
   click('keep-alert');click('notify');
   Object.defineProperty(win.navigator,'share',{configurable:true,value:undefined});
   let copied='';Object.defineProperty(win.navigator,'clipboard',{configurable:true,value:{writeText:async text=>{copied=text;}}});
-  click('line-share');await wait(20);check('Unsupported Web Share falls back to copy',copied===husbandAlertShareMessage()&&read().alertHits===100);
+  click('line-share');await wait(20);check('Unsupported Web Share falls back to copy',copied===husbandAlertShareMessage(doc.getElementById('alert-message').textContent)&&read().alertHits===100);
   let resolveCopy;Object.defineProperty(win.navigator,'clipboard',{configurable:true,value:{writeText:()=>new Promise(resolve=>{resolveCopy=resolve;})}});
   click('copy-message');win.confirm=()=>true;click('forgive-alert');resolveCopy();await wait(20);
   check('Late copy cannot resurrect cleared alert',read().alertHits===0&&!read().sharePending);

@@ -1,19 +1,5 @@
 export const ALERT_THRESHOLD=100;
-export function husbandAlertShareMessage(){return `🚨 HUSBAND ALERT 🚨
-
-老公，事情有點嚴重。
-
-你的老婆最近已經默默累積了 ${ALERT_THRESHOLD} 下。
-
-⚠️ ${ALERT_THRESHOLD} 下不是今日限定。
-是。
-累。
-積。
-的。
-
-今天的抱抱倒是可以立即供應。
-
-——《老公欠揍計數器》
+export function husbandAlertShareMessage(currentAlertMessage){return `${currentAlertMessage}
 
 ────────────
 
