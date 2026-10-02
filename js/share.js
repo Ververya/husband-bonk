@@ -17,15 +17,9 @@ export function husbandAlertShareMessage(){return `🚨 HUSBAND ALERT 🚨
 
 ────────────
 
-🛟 老公求生指南
+🛟 老公求生建議
 
-系統正在分析最佳解法⋯⋯
-
-分析完成。
-
-我也無法救你。
-
-祝你好運。🙂`;}
+祝 你 好 運 🙂`;}
 export function lineShareUrl(text){return `https://line.me/R/share?text=${encodeURIComponent(text)}`;}
 export function openLineShare(text){
   if(!navigator.onLine)return 'offline';

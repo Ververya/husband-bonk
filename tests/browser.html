@@ -1,0 +1,107 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>Two counter tests</title></head><body><pre id="results">RUNNING</pre><script type="module">
+import {createState,migrateLegacy} from '../js/storage.js';
+import {alerts} from '../data/alerts.js';
+import {husbandAlertShareMessage} from '../js/share.js';
+const results=[],errors=[];const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const key='husbandBonk_v2',oldKey='husbandBonk_v1';
+const original=localStorage.getItem(key),legacyOriginal=localStorage.getItem(oldKey);
+const frame=document.createElement('iframe');frame.style.height='1000px';document.body.append(frame);
+function check(name,condition){results.push({name,pass:!!condition});document.getElementById('results').textContent=JSON.stringify({results,errors},null,2);}
+function read(){return JSON.parse(localStorage.getItem(key));}
+let win,doc;
+async function load(seed){
+  if(seed)localStorage.setItem(key,JSON.stringify({...createState(),...seed}));
+  await new Promise(resolve=>{frame.onload=resolve;frame.src='/index.html?test='+Date.now()+Math.random();});await wait(100);
+  win=frame.contentWindow;doc=win.document;
+  win.addEventListener('error',event=>errors.push(event.message));win.addEventListener('unhandledrejection',event=>errors.push(String(event.reason)));
+}
+function click(id){doc.getElementById(id).click();}
+function openCount(){return doc.querySelectorAll('dialog[open]').length;}
+try{
+  await load({sessionHits:29,alertHits:50,lifetimeHits:79});click('husband');
+  check('A 30/51 Rage event',read().sessionHits===30&&read().alertHits===51&&doc.getElementById('rage-dialog').open);
+  click('release');check('A release session only',read().sessionHits===0&&read().alertHits===51&&read().lifetimeHits===80);
+  await wait(1600);check('Release status fades',doc.getElementById('status').classList.contains('fading'));
+  await load({sessionHits:29,alertHits:99,lifetimeHits:129});click('husband');
+  check('B alert priority single modal',read().sessionHits===30&&read().alertHits===100&&doc.getElementById('alert-dialog').open&&!doc.getElementById('rage-dialog').open&&openCount()===1);
+  click('keep-alert');check('B deferred Rage event',doc.getElementById('rage-dialog').open&&openCount()===1);click('continue-session');
+  await load({sessionHits:10,alertHits:99,lifetimeHits:109});click('husband');
+  check('C independent alert',read().sessionHits===11&&doc.getElementById('alert-dialog').open);
+  const message=doc.getElementById('alert-message').textContent;
+  click('keep-alert');await load();
+  check('D acknowledgement survives refresh',read().alertHits===100&&read().alertAcknowledged&&openCount()===0&&!doc.getElementById('notify').hidden);
+  click('husband');check('D continue past 100',read().alertHits===101&&openCount()===0);
+  click('notify');check('Reopen same message',doc.getElementById('alert-message').textContent===message);
+  let openedUrl='';win.open=url=>{openedUrl=url;return {opener:null};};
+  const lifetime=read().lifetimeHits;
+  click('line-share');await wait(20);
+  check('LINE URL encoded and user initiated',openedUrl==='https://line.me/R/share?text='+encodeURIComponent(husbandAlertShareMessage()));
+  check('Opening share never resets',read().alertHits===101&&!doc.getElementById('share-complete').hidden);
+  click('share-complete');
+  check('E confirmed share clears alert only',read().alertHits===0&&read().lifetimeHits===lifetime&&read().sessionHits===12&&read().alertCount===1);
+  click('share-complete');check('Share completion cannot duplicate',read().alertCount===1);
+  await load({sessionHits:29,alertHits:29,lifetimeHits:29});click('husband');click('continue-session');
+  for(let i=0;i<3;i++)click('husband');
+  check('F Over Bonk continues',read().sessionHits===33&&read().alertHits===33&&doc.getElementById('count-limit').textContent===' BONKS'&&doc.getElementById('session-mode').textContent==='OVER BONK MODE');
+  check('F progress clamped',doc.getElementById('progress-fill').style.width==='100%'&&doc.getElementById('progress').getAttribute('aria-valuenow')==='30');
+  await load();check('G all counters persist',read().sessionHits===33&&read().alertHits===33&&read().lifetimeHits===33&&openCount()===0);
+  for(const [hits,text] of [[40,'還沒消氣嗎……'],[50,'老婆，我覺得我們可以談談。'],[60,'我現在去洗奶瓶。'],[70,'垃圾我倒。'],[80,'家事我做。'],[90,'我錯了。']]){
+    await load({sessionHits:hits-1,sessionAcknowledged:true,alertHits:0,lifetimeHits:hits});click('husband');check('Milestone '+hits,doc.getElementById('speech').textContent===text);
+  }
+  await load({sessionHits:1,alertHits:98,lifetimeHits:98});click('husband');check('Alert 99 warning follows alert counter',doc.getElementById('speech').textContent==='我是不是有一種不好的預感……');
+  await load({sessionHits:45,sessionAcknowledged:true,alertHits:100,alertAcknowledged:true,lifetimeHits:145});click('notify');win.open=()=>({opener:null});click('line-share');await wait(20);click('share-complete');
+  check('Post share continuation prompt',doc.getElementById('rage-title').textContent==='還要繼續嗎？'&&openCount()===1);click('continue-session');check('Post share preserve session',read().sessionHits===45&&read().alertHits===0);
+  click('husband');check('Continues after share',read().sessionHits===46&&read().alertHits===1);
+  await load({sessionHits:3,alertHits:100,alertAcknowledged:true,lifetimeHits:103});click('notify');
+  Object.defineProperty(win.navigator,'share',{configurable:true,value:async()=>{throw new win.DOMException('cancel','AbortError');}});
+  click('web-share');await wait(20);check('Cancelled Web Share preserves alert',read().alertHits===100&&!read().sharePending);
+  Object.defineProperty(win.navigator,'onLine',{configurable:true,value:false});win.open=()=>{throw new Error('Offline must not open');};click('line-share');await wait(20);check('Offline share preserves state',read().alertHits===100&&doc.getElementById('share-status').textContent.includes('等有網路'));
+  Object.defineProperty(win.navigator,'onLine',{configurable:true,value:true});Object.defineProperty(win.navigator,'clipboard',{configurable:true,value:{writeText:async()=>{}}});click('copy-message');await wait(20);check('Copy does not mean sent',read().alertHits===100&&read().sharePending);
+  click('keep-alert');click('notify');win.confirm=()=>false;click('forgive-alert');check('Forgive cancellation preserves alert',read().alertHits===100);win.confirm=()=>true;click('forgive-alert');check('Explicit forgiveness resets alert only',read().alertHits===0&&read().sessionHits===3&&read().lifetimeHits===103&&read().alertCount===0);
+  for(const width of [320,390,430,768,1440]){frame.style.width=width+'px';await wait(60);check('Layout '+width,doc.documentElement.scrollWidth<=width);check('Touch '+width,doc.getElementById('husband').clientWidth>=180);}
+  await load({sessionHits:31,sessionAcknowledged:true,alertHits:100,alertAcknowledged:true,lifetimeHits:131});
+  for(let i=0;i<200;i++)click('husband');
+  check('200 rapid taps no loss',read().sessionHits===231&&read().alertHits===300&&read().lifetimeHits===331);
+  check('Effects bounded',doc.getElementById('effects').childElementCount<=20);await wait(1300);check('Effects and combo cleaned',doc.getElementById('effects').childElementCount===0&&doc.getElementById('combo').textContent==='');
+  await load({sessionHits:31,sessionAcknowledged:true,alertHits:100,alertAcknowledged:true,lifetimeHits:200});
+  for(let i=0;i<20;i++){click('husband');await wait(100);}check('10 taps per second',read().sessionHits===51&&read().alertHits===120&&read().lifetimeHits===220);
+  for(const boundary of [300,500,1000]){
+    await load({sessionHits:1,alertHits:1,lifetimeHits:boundary-1,unlockedAchievements:[300,500,1000].filter(n=>n<boundary)});click('husband');
+    check('Achievement '+boundary,read().unlockedAchievements.includes(boundary)&&!doc.getElementById('achievement').hidden&&doc.getElementById('achievement').textContent==={300:'🏆《婚姻需要耐心》',500:'🏆《他應該知道自己做了什麼》',1000:'🏆《傳說中的太太》'}[boundary]);
+    await load();check('Achievement no repeat '+boundary,doc.getElementById('achievement').hidden&&read().unlockedAchievements.includes(boundary));
+  }
+  localStorage.removeItem(key);const old={schemaVersion:1,totalHits:57,lifetimeHits:257,alertCount:2,settings:{reduceMotion:true}};localStorage.setItem(oldKey,JSON.stringify(old));await load();
+  check('Migration 57 and lifetime preserved',read().schemaVersion===2&&read().sessionHits===30&&read().alertHits===57&&read().lifetimeHits===257&&read().alertCount===2&&read().settings.reduceMotion);
+  check('Migration old save untouched',JSON.parse(localStorage.getItem(oldKey)).totalHits===57);
+  const migrated=migrateLegacy({totalHits:200,lifetimeHits:257});check('Migration above 100 clamp',migrated.sessionHits===30&&migrated.alertHits===100&&migrated.lifetimeHits===257);
+  const legacyOnly=migrateLegacy({totalHits:57});check('Migration totalHits only',legacyOnly.sessionHits===30&&legacyOnly.alertHits===57&&legacyOnly.lifetimeHits===57);
+  await load({sessionHits:10,alertHits:50,lifetimeHits:60});click('settings-button');click('reset');check('Session reset requires confirmation',doc.getElementById('reset-dialog').open&&read().sessionHits===10);click('cancel-reset');click('reset');click('confirm-reset');check('Session reset leaves alert/lifetime',read().sessionHits===0&&read().alertHits===50&&read().lifetimeHits===60);
+  await load();
+  check('Statistics highest/lifetime preserved',read().highestSessionHits===10&&doc.getElementById('stat-highest').textContent==='10'&&doc.getElementById('stat-lifetime').textContent==='60');
+  await load({sessionHits:0,alertHits:0,lifetimeHits:0});
+  for(let round=0;round<3;round++){for(let i=0;i<30;i++)click('husband');click('release');}
+  for(let i=0;i<10;i++)click('husband');
+  check('Cross session 30+30+30+10 Alert',read().sessionHits===10&&read().alertHits===100&&doc.getElementById('alert-dialog').open);
+  let shareCalls=0;win.open=()=>null;
+  Object.defineProperty(win.navigator,'share',{configurable:true,value:async()=>{shareCalls++;}});
+  click('line-share');await wait(20);check('Blocked LINE falls back to Web Share',shareCalls===1&&read().sharePending&&read().alertHits===100);
+  click('keep-alert');click('notify');
+  Object.defineProperty(win.navigator,'share',{configurable:true,value:undefined});
+  let copied='';Object.defineProperty(win.navigator,'clipboard',{configurable:true,value:{writeText:async text=>{copied=text;}}});
+  click('line-share');await wait(20);check('Unsupported Web Share falls back to copy',copied===husbandAlertShareMessage()&&read().alertHits===100);
+  let resolveCopy;Object.defineProperty(win.navigator,'clipboard',{configurable:true,value:{writeText:()=>new Promise(resolve=>{resolveCopy=resolve;})}});
+  click('copy-message');win.confirm=()=>true;click('forgive-alert');resolveCopy();await wait(20);
+  check('Late copy cannot resurrect cleared alert',read().alertHits===0&&!read().sharePending);
+  await load({sessionHits:1,alertHits:1,lifetimeHits:2,settings:{reduceMotion:true}});click('husband');
+  check('Reduce motion keeps counter without effects',read().sessionHits===2&&doc.getElementById('effects').childElementCount===0&&doc.body.classList.contains('reduced'));
+  check('At least 15 local alert messages',alerts.length>=15);
+  check('No browser JS errors',errors.length===0);
+  await Promise.race([navigator.serviceWorker.ready,wait(2000)]);
+  const cacheName=(await caches.keys()).find(name=>name.startsWith('husband-bonk-pages-'));const cache=await caches.open(cacheName);const cached=await cache.keys();check('Offline core cached',cached.length>=12);
+}catch(error){results.push({name:'Runner',pass:false,error:String(error)});}
+finally{
+  if(original===null)localStorage.removeItem(key);else localStorage.setItem(key,original);
+  if(legacyOriginal===null)localStorage.removeItem(oldKey);else localStorage.setItem(oldKey,legacyOriginal);
+  frame.remove();document.getElementById('results').textContent=JSON.stringify({results,errors},null,2);
+}
+</script></body></html>
