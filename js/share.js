@@ -1,4 +1,30 @@
-﻿export function lineShareUrl(text){return `https://line.me/R/share?text=${encodeURIComponent(text)}`;}
+export const ALERT_THRESHOLD=100;
+export function husbandAlertShareMessage(){return `🚨 HUSBAND ALERT 🚨
+
+老公，事情有點嚴重。
+
+你的老婆最近已經默默累積了 ${ALERT_THRESHOLD} 下。
+
+🚨 累積提醒已送達。
+
+${ALERT_THRESHOLD} 下不是今日限定。
+是。
+累。
+積。
+的。
+
+今天的抱抱倒是可以立即供應。
+
+——《老公欠揍計數器》
+
+────────────
+
+🛟 老公解法：
+
+我也無法救你。
+
+祝你好運。🙂`;}
+export function lineShareUrl(text){return `https://line.me/R/share?text=${encodeURIComponent(text)}`;}
 export function openLineShare(text){
   if(!navigator.onLine)return 'offline';
   console.info('[SHARE READY]');

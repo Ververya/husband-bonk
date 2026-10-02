@@ -1,10 +1,10 @@
-﻿import {loadState,saveState,createState} from './storage.js';
+import {loadState,saveState,createState} from './storage.js';
 import {mountCharacter,renderCharacter} from './character.js';
 import {createEffects} from './effects.js';
 import {milestones,initialDialogue,alertWarning,continueDialogue} from '../data/dialogues.js';
 import {alerts} from '../data/alerts.js';
 import {achievements} from '../data/achievements.js';
-import {openLineShare,webShare,copyMessage} from './share.js';
+import {openLineShare,webShare,copyMessage,husbandAlertShareMessage} from './share.js';
 
 const $=id=>document.getElementById(id);
 let state=loadState();
@@ -119,15 +119,15 @@ function clearAlert(shared){
 function markSharePending(){if(state.alertHits<100)return;state.sharePending=true;persist();$('share-complete').hidden=false;$('share-status').textContent='請在分享介面自行選擇收件人與送出；完成後再按「我已完成分享」。';}
 async function copyAlert(){
   const cycle=shareCycle;
-  const copied=await copyMessage(alertMessage());
+  const copied=await copyMessage(husbandAlertShareMessage());
   if(cycle!==shareCycle||state.alertHits<100)return;
-  $('copy-text').value=alertMessage();$('copy-text').hidden=copied;
+  $('copy-text').value=husbandAlertShareMessage();$('copy-text').hidden=copied;
   if(!copied){$('copy-text').focus();$('copy-text').select();}
   markSharePending();$('share-status').textContent=copied?'訊息已複製；尚未送出。貼上並分享完成後再確認。':'請手動複製上方訊息；完成分享後再確認。';
 }
 async function useWebShare(){
   const cycle=shareCycle;
-  const result=await webShare(alertMessage());
+  const result=await webShare(husbandAlertShareMessage());
   if(cycle!==shareCycle||state.alertHits<100)return;
   if(result==='offline'){$('share-status').textContent='先幫妳留著。等有網路再傳給他。';return;}
   if(result==='cancelled'){$('share-status').textContent='已取消分享，累積警戒值保留。';return;}
@@ -142,7 +142,7 @@ $('alert-dialog').addEventListener('cancel',event=>{event.preventDefault();keepA
 $('keep-alert').addEventListener('click',keepAlert);
 $('notify').addEventListener('click',showAlert);
 $('line-share').addEventListener('click',async()=>{
-  const result=openLineShare(alertMessage());
+  const result=openLineShare(husbandAlertShareMessage());
   if(result==='offline')$('share-status').textContent='先幫妳留著。等有網路再傳給他。';
   else if(result==='opened')markSharePending();else await useWebShare();
 });
